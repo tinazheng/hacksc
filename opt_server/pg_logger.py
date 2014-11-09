@@ -1319,7 +1319,7 @@ class PGLogger(bdb.Bdb):
       raise bdb.BdbQuit # need to forceably STOP execution
 
 
-    def finalize_trace(self):
+    def finalize_data(self):
       sys.stdout = self.GAE_STDOUT # very important!
       sys.stderr = self.ORIGINAL_STDERR
 
@@ -1348,7 +1348,7 @@ class PGLogger(bdb.Bdb):
 
       self.trace = res
 
-      return self.trace
+      return {'trace': self.trace,'source':self.executed_script}
 
     def finalize(self):
       sys.stdout = self.GAE_STDOUT # very important!
@@ -1434,7 +1434,7 @@ def exec_script_str_return(script_str, raw_input_lst_json, options_json):
   except bdb.BdbQuit:
     pass
   finally:
-    return logger.finalize_trace()
+    return logger.finalize_data()
 
 # disables security check and returns the result of finalizer_func
 # WARNING: ONLY RUN THIS LOCALLY and never over the web, since

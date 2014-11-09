@@ -1,7 +1,6 @@
 from flask import Flask
 from flask import request
 from flask import Response
-#from flask import jsonify
 import pg_logger, json
 
 proj_name = "mobile_opt"
