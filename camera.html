@@ -1,0 +1,90 @@
+<!doctype html>
+<html>
+	<head>
+		<title>Practice</title>
+		<script src="jquery-1.11.1.min.js"></script>
+	</head>
+	<body>
+		<video autoplay width="700" height="700"></video>
+		<p><input type = "button" id="stopbt" value ="stop" /></p>
+		<p><input type = "button" id="picbt" value = "take a picture" /></p>
+		<canvas id ="canvas" width="700" height="700"></canvas>
+		<img src="" id="photo">
+		<script type="text/javascript">
+			window.URL = window.URL || window.webkitURL;
+			navigator.getUserMedia = 
+				navigator.getUserMedia ||
+				navigator.webkitGetUserMedia ||
+				navigator.mozGetUserMedia ||
+				navigator.msGetUserMedia;
+			var video = document.querySelector('video');
+			var snapshot = document.querySelector("#picbt");
+			var canvas = document.querySelector("#canvas");
+			var photo = document.querySelector("#photo");
+			var ctx = canvas.getContext('2d');
+			var cameraStream = '';
+			var constraint = {video: true};
+			var successCallback = function(stream)
+						{
+							cameraStream = stream;
+							video.src = window.URL.createObjectURL(stream);
+						};
+			var errorCallback =  function()
+						{
+							document.writeln("problem with accessing hardware!")
+						};
+			var runCallback = function(){
+				if(navigator.getUserMedia){
+					navigator.getUserMedia(constraint, successCallback, errorCallback)
+				}
+				else{
+					document.writeln("video capture is not supported");
+				}
+			}
+						
+			document.querySelector('#stopbt').addEventListener(
+					'click',
+					function(e)
+					{
+						video.src = '';
+						cameraStream.stop();
+					});
+			
+			
+			snapshot.addEventListener('click', function(ev){
+				if(navigator.getUserMedia){
+					ctx.drawImage(video, 0, 0);
+					photo = canvas.toDataURL("image/png");
+					cameraStream.stop();
+					video.width, video.height = 0, 0;
+					//send photo to image analyzer
+
+				}
+			});
+
+			MediaStreamTrack.getSources(function(sourceInfos) 
+			{
+  				var videoSource = null;
+
+  				for (var i = 0; i != sourceInfos.length; ++i) 
+  				{
+    				var sourceInfo = sourceInfos[i];
+    				if (sourceInfo.kind === 'video') 
+    				{
+      					console.log(sourceInfo.id, sourceInfo.label || 'camera');
+						videoSource = sourceInfo.id;
+    				} else {
+      					console.log('Some other kind of source: ', sourceInfo);
+    				}
+  				}
+
+  				sourceSelected(videoSource);
+			});
+
+			function sourceSelected(videoSource) {
+  				constraint = {video: {optional: [{sourceId: videoSource}]}};
+				runCallback()
+			}
+		</script>
+	</body>
+</html>
